@@ -1,0 +1,186 @@
+# Fait par Gabriel Auger-Herrera
+# fait le 25 octobre
+# Projet qui a pour but de faire un jeu RPG
+
+
+#variables utlilisées lors du code et imports
+
+import random
+global vie
+global victoires
+global defaites
+global playing
+global batailles
+global evitements
+playing = True
+jouer = True
+run = False
+#Variables qui indiquent la progression du joueur
+niveau_vie = 40
+batailles_total = 0
+victoires_total = 0
+defaites_total = 0
+rondeBoss = 0
+VictoireVsBoss = 0
+VictoiresConsecutives3 = 0
+boss_status = False
+redo = True
+choix = False
+
+
+def informations_joueur():
+   print('''Votre bilan de joueur: Niveau de vie: ''' + str(niveau_vie))
+   print('Batailles: ' + str(batailles_total))
+   print('Victoires: ' + str(victoires_total))
+   print('Défaites: ' + str(defaites_total))
+   print('VictoiresConsécutives ' + str(VictoiresConsecutives3))
+
+
+
+def regles_jeu():
+     print('''
+    - Pour réussir un combat, il faut que la valeur du dé lancé soit supérieure à la force de l’adversaire.
+         - Dans ce cas, le niveau de vie de l’usager est augmenté de la force de l’adversaire.                                                                   
+    - Une défaite a lieu lorsque la valeur du dé lancé par l’usager est inférieure ou égale à la force de l’adversaire.
+         - Dans ce cas, le niveau de vie de l’usager est diminué de la force de l’adversaire.                                                      
+    - La partie se termine lorsque les points de vie de l’usager tombent sous 0.                                             
+    - L’usager peut combattre ou éviter chaque adversaire, dans le cas de l’évitement,
+    il y a une pénalité de 1 point de vie.                                      
+    ''')
+
+
+
+while playing:
+    run = False
+    informations_joueur()
+    input('Cliquez la touche Entrée pour vous diriger vers une porte ')
+    #Debut du combat
+    print("Vous avez choisi la premiere porte devant vous. ")
+    force_adversaire = random.randint(1,6) + random.randint(1,6)
+    print('Il y a un monstre devant vous, sa force est de ' + str(force_adversaire))
+    #Demander au joueur que veut il faire
+    choix = input(str('Voulez-vous (Si vous décidez de ne pas combattre le monstre, cela vous coûtera 1 point de vie) \n 1)Combattre, \n 2)Éviter le monstre, \n 3)Lire les règles du jeu, \n 4)Quitter le jeu:'))
+    #Si le choix est d'attaquer le monstre
+    if choix == '1':
+       print('Tu avance vers le monstre')
+       print('Tu décides de faire une attaque')
+       attaque_joueur = random.randint(1,6) + random.randint(1,6)
+       print('Ton attaque était de niveau de force ' + str(attaque_joueur))
+       #Si le joueur gagne son attaque
+       if attaque_joueur <= force_adversaire:
+           print('Ton attaque ne fut suffisante pour tuer le monstre.')
+           print('Vous avez donc perdu la bataille')
+           batailles_total = batailles_total + 1
+           defaites_total = defaites_total + 1
+           niveau_vie = niveau_vie + 2
+           VictoiresConsecutives3 = 0
+           print('Tu est presque mort, mais tu as survécu.')
+           dommage_encastre = niveau_vie - force_adversaire
+           print('Votre santé -' + str(force_adversaire))
+       #Si je joueur perd son attaque
+       elif attaque_joueur > force_adversaire:
+           print('Vous avez tué le monstre!. ')
+           batailles_total = batailles_total + 1
+           victoires_total = victoires_total + 1
+           niveau_vie = niveau_vie - 2
+           VictoiresConsecutives3 = VictoiresConsecutives3 + 1
+           print('Le monstre a laissé tomber quelque chose ...')
+           print('Un niveau ' + str(force_adversaire) + ' sac médical,')
+           dommage_encastre = niveau_vie - force_adversaire
+           print('Santé +' + str(force_adversaire))
+    #Si le choix est de ne pas combattre
+    elif choix == '2':
+       print('Vous décidez de ne pas faire une attaque, cela vous coutera donc 2 points de vie')
+       #Indique que le joueur ne combat pas (perd 2 niveau de vie)
+       niveau_vie = niveau_vie - 2
+       VictoiresConsecutives3 = 0
+       defaites_total = defaites_total + 1
+    #Si le choix est de lire les règles du jeu
+    elif choix == '3':
+       #Afficher les règles du jeu
+       regles_jeu()
+    #Si la décision est autre que les 3 premiers
+    else:
+       print('Vous décidez de quitter le jeu')
+       playing = False
+       #Affichier que le jeu est fini
+       print('Merci et au revoir')
+
+
+#Indique si le joueur réussit d'accomplir 3 victoires de suite
+    if VictoiresConsecutives3 %3 == 0 and VictoiresConsecutives3 != 0:
+       boss_status = True
+       #Nouvelle condition indiquant que le joueur affronte le boss
+       while boss_status:
+           VieAdversaireBoss = random.randint(10, 30)
+           ForceAdversaire = random.randint(5, 15) + random.randint(5, 15)
+    #Indique si le boss tue le joueur
+           if niveau_vie <= 0:
+               print('Vous êtes mort, vous retournerez au jeu normal, vous avez donc accompli:' )
+               boss_status = False
+               VictoiresConsecutives3 = 0
+           #Indique si le boss n'est pas mort, le joueur continue
+           else:
+               rondeBoss += 1
+               print('Vous continuez de faire des attaques envers le boss')
+               ForceJoueurDefi = random.randint(1, 6) + random.randint(1, 6)
+               print('Vous lancez le dé, vous obtenez' + str(ForceJoueurDefi) + 'et infligez cette quantité de dégats face au boss')
+               VieAdversaireBoss -= ForceJoueurDefi
+            #Indique si le joueur réussit à tuer le boss
+           if VieAdversaireBoss <= 0:
+               print('Vous avez accompli à tuer le boss')
+               VictoireVsBoss += 1
+               #Informe au joueur le nombre de rondes requises pour battre le boss
+               print('Le boss est tué en' +str(rondeBoss) + 'tours')
+               print('Vous aves tué au total, un ensemble de' + str(VictoireVsBoss) + 'boss')
+               print('Vous avez obtenu un bonus de 15 points de vie en ayant remporté le niveau du boss')
+               niveau_vie += 15
+               print('Vous avez dorénanavant' + str(niveau_vie) + 'point de vie')
+               rondeBoss = 0
+               VictoiresConsecutives3 = + 1
+        #Indique le nombre de vie du boss et de l'utilisateur
+           else:
+               print('Le boss vous a infligé ' +str(ForceAdversaire)+'points de vie')
+               #Variable indiquant que le joueur a les vies enlevées par la force du boss
+               niveau_vie -= VieAdversaireBoss
+               print('Le boss a ' +str(VieAdversaireBoss) +'points de vie')
+               print('Vous avez '+str(niveau_vie) +'points de vie')
+    #Indique si le joueur meurt lors de ces combats
+    if niveau_vie <= 0:
+       #Indique que le joueur retourne au jeu
+       boss_status = False
+
+
+       #Indique si le joueur meurt de manque vie
+       if niveau_vie <= 0 and run == False:
+           print('Tu as malheureusement pas assez de forces, tu meurs de faiblesse.')
+           print('Voici ce que tu a accompli lors de ton aventure: ')
+           health = 0
+           informations_joueur()
+           #Jeu fini, indique de rejouer
+           playing = False
+       #Indique que le joueur meurt de perte de ses vies, à cause qu'il esquive chaque combat
+       elif niveau_vie <= 0 and defaites == 0 and run == True:
+           print('Tu évites chaque combat, tu perds toutes tes vies.')
+           print('Voici ce que vous avez accompli:')
+           informations_joueur()
+           niveau_vie = 0
+           #Jeu fini, rejouer
+           playing = False
+        #Indique que le joueur meurt comme cela
+       else:
+           print('Tu est mort')
+           print('Voici ce que vous avez accompli: ')
+           niveau_vie = 0
+           informations_joueur()
+           #Jeu fini, rejouer
+           playing = False
+#Demande au joueur s'il veut rejouer
+rejouer = input(str('Voulez vous rejouer oui ou non'))
+#Réponse positive, rejouer le jeu
+if rejouer == "oui":
+    print('Vous rejouez')
+    playing = True
+#Quitter le jeu
+else:
+    print('Merci et au revoir')
